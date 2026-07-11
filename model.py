@@ -52,8 +52,46 @@ def split_score(parent_labels, left_labels, right_labels):
         w_right * right_impurity
     )
 
-# Step 4 - best_split (not yet solved)
-# TODO: implement
+# Step 4 - best_split
+import numpy as np
+
+def best_split(features, labels, feature_indices):
+    best = {
+        "feature_index": None,
+        "threshold": None,
+        "score": 0.0
+    }
+
+    for fi in feature_indices:
+
+        values = np.unique(features[:, fi])
+
+        if len(values) < 2:
+            continue
+
+        thresholds = (values[:-1] + values[1:]) / 2
+
+        for t in thresholds:
+
+            left_X, left_y, right_X, right_y = split_dataset(
+                features,
+                labels,
+                fi,
+                t
+            )
+
+            # Skip invalid splits
+            if len(left_y) == 0 or len(right_y) == 0:
+                continue
+
+            score = split_score(labels, left_y, right_y)
+
+            if score > best["score"]:
+                best["feature_index"] = fi
+                best["threshold"] = t
+                best["score"] = score
+
+    return best
 
 # Step 5 - should_stop (not yet solved)
 # TODO: implement
