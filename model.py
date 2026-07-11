@@ -21,8 +21,20 @@ def impurity(labels):
     p = counts / len(labels)
     return float(1 - np.sum(p ** 2))
 
-# Step 2 - split_dataset (not yet solved)
-# TODO: implement
+# Step 2 - split_dataset
+import numpy as np
+
+def split_dataset(features, labels, feature_index, threshold):
+    col = features[:, feature_index]
+    mask = col <= threshold
+
+    left_features = features[mask]
+    left_labels = labels[mask]
+
+    right_features = features[~mask]
+    right_labels = labels[~mask]
+
+    return left_features, left_labels, right_features, right_labels
 
 # Step 3 - split_score (not yet solved)
 # TODO: implement
