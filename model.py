@@ -101,11 +101,89 @@ def should_stop(labels, depth, max_depth, min_samples_split):
         or len(labels) < min_samples_split
     )
 
-# Step 6 - leaf_prediction (not yet solved)
-# TODO: implement
+# Step 6 - leaf_prediction
+import numpy as np
 
-# Step 7 - build_tree (not yet solved)
-# TODO: implement
+def leaf_prediction(labels):
+    values, counts = np.unique(labels, return_counts=True)
+    return int(values[np.argmax(counts)])
+
+# Step 7 - build_tree
+import numpy as np
+
+def build_tree(
+    features,
+    labels,
+    depth=0,
+    max_depth=10,
+    min_samples_split=2,
+    feature_subset=None,
+):
+    # 1. Check stopping conditions
+    if should_stop(labels, depth, max_depth, min_samples_split):
+        return {
+            "leaf": True,
+            "prediction": leaf_prediction(labels),
+        }
+
+    # 2. Candidate features
+    if feature_subset is None:
+        candidate_features = list(range(features.shape[1]))
+    else:
+        candidate_features = list(feature_subset)
+
+    # 3. Find the best split
+    split = best_split(features, labels, candidate_features)
+
+    # No useful split
+    if split["feature_index"] is None:
+        return {
+            "leaf": True,
+            "prediction": leaf_prediction(labels),
+        }
+
+    # 4. Split the data
+    left_X, left_y, right_X, right_y = split_dataset(
+        features,
+        labels,
+        split["feature_index"],
+        split["threshold"],
+    )
+
+    # Safety check
+    if len(left_y) == 0 or len(right_y) == 0:
+        return {
+            "leaf": True,
+            "prediction": leaf_prediction(labels),
+        }
+
+    # 5. Recursively build children
+    left_tree = build_tree(
+        left_X,
+        left_y,
+        depth + 1,
+        max_depth,
+        min_samples_split,
+        feature_subset,
+    )
+
+    right_tree = build_tree(
+        right_X,
+        right_y,
+        depth + 1,
+        max_depth,
+        min_samples_split,
+        feature_subset,
+    )
+
+    # 6. Return internal node
+    return {
+        "leaf": False,
+        "feature_index": split["feature_index"],
+        "threshold": split["threshold"],
+        "left": left_tree,
+        "right": right_tree,
+    }
 
 # Step 8 - predict_example_tree (not yet solved)
 # TODO: implement
